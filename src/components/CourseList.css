@@ -1,0 +1,13 @@
+/* Custom styles for CourseList component */
+
+/* Add smooth hover effect and improved padding/margin to course cards */
+.course-card-custom {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin: 0.5rem;
+  }
+  
+  .course-card-custom:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+  

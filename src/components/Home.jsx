@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CourseList from './CourseList';
+import Testimonial from './Testimonial'; // Import the testimonial component
 
 /**
  * Home page that displays an enhanced hero banner, a styled search bar,
- * a featured courses section, and a testimonials carousel.
+ * a featured courses section, and the testimonials component.
  */
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -69,7 +70,6 @@ const Home = () => {
             Explore our top-rated courses curated for your success.
           </p>
         </div>
-        {/* Pass an additional prop (featuredOnly) if needed */}
         <CourseList searchQuery={searchQuery} featuredOnly={true} />
         <div className="text-center mt-4">
           <Link to="/courses" className="btn btn-outline-primary">
@@ -79,72 +79,7 @@ const Home = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="bg-light py-5">
-        <div className="container">
-          <div className="text-center mb-4">
-            <h2 className="fw-bold">What Our Students Say</h2>
-          </div>
-          <div
-            id="testimonialCarousel"
-            className="carousel slide"
-            data-bs-ride="carousel"
-          >
-            <div className="carousel-inner">
-              <div className="carousel-item active">
-                <div className="d-flex flex-column align-items-center">
-                  <p className="lead text-center">
-                    "This platform transformed my career. The courses are
-                    insightful and the instructors are top-notch."
-                  </p>
-                  <h5 className="mt-3">- John Doe</h5>
-                </div>
-              </div>
-              <div className="carousel-item">
-                <div className="d-flex flex-column align-items-center">
-                  <p className="lead text-center">
-                    "Excellent courses and fantastic support. I've learned so
-                    much and grown professionally."
-                  </p>
-                  <h5 className="mt-3">- Jane Smith</h5>
-                </div>
-              </div>
-              <div className="carousel-item">
-                <div className="d-flex flex-column align-items-center">
-                  <p className="lead text-center">
-                    "The best online learning experience I've ever had.
-                    Highly recommended!"
-                  </p>
-                  <h5 className="mt-3">- Michael Brown</h5>
-                </div>
-              </div>
-            </div>
-            <button
-              className="carousel-control-prev"
-              type="button"
-              data-bs-target="#testimonialCarousel"
-              data-bs-slide="prev"
-            >
-              <span
-                className="carousel-control-prev-icon"
-                aria-hidden="true"
-              ></span>
-              <span className="visually-hidden">Previous</span>
-            </button>
-            <button
-              className="carousel-control-next"
-              type="button"
-              data-bs-target="#testimonialCarousel"
-              data-bs-slide="next"
-            >
-              <span
-                className="carousel-control-next-icon"
-                aria-hidden="true"
-              ></span>
-              <span className="visually-hidden">Next</span>
-            </button>
-          </div>
-        </div>
-      </section>
+      <Testimonial />
     </div>
   );
 };

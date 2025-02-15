@@ -4,12 +4,13 @@ import axios from '../axiosConfig';
 import { CartContext } from '../context/CartContext';
 
 /**
- * Displays detailed information for a specific course using a Bootstrap card.
+ * Displays detailed information for a specific course using a modern, tabbed layout.
  */
 const CourseDetail = () => {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('overview');
   const { addToCart } = useContext(CartContext);
 
   useEffect(() => {
@@ -52,29 +53,82 @@ const CourseDetail = () => {
           />
         )}
         <div className="card-body">
-          <h2 className="card-title mb-3">{course.title}</h2>
-          <p className="card-text">{course.description}</p>
-          <p className="card-text">
-            <strong>Instructor:</strong> {course.instructor}
-          </p>
-          <p className="card-text">
-            <strong>Price:</strong> ${course.price.toFixed(2)}
-          </p>
-          {/* Placeholder for additional course details such as reviews or syllabus */}
-          {/* <div className="mt-4">
-            <h5>Course Reviews</h5>
-            <p>Coming soon...</p>
-          </div> */}
-          <div className="d-flex justify-content-between mt-4">
-            <Link to="/courses" className="btn btn-outline-secondary">
+          <div className="mb-3">
+            <h2 className="card-title">{course.title}</h2>
+            {/* Placeholder for course rating */}
+            <div className="mb-2">
+              <small className="text-muted">Rating: 4.5 / 5</small>
+            </div>
+          </div>
+          {/* Tab Navigation */}
+          <ul className="nav nav-tabs mb-4" role="tablist">
+            <li className="nav-item" role="presentation">
+              <button
+                className={`nav-link ${activeTab === 'overview' ? 'active' : ''}`}
+                onClick={() => setActiveTab('overview')}
+                type="button"
+                role="tab"
+              >
+                Overview
+              </button>
+            </li>
+            <li className="nav-item" role="presentation">
+              <button
+                className={`nav-link ${activeTab === 'details' ? 'active' : ''}`}
+                onClick={() => setActiveTab('details')}
+                type="button"
+                role="tab"
+              >
+                Reviews & Syllabus
+              </button>
+            </li>
+          </ul>
+
+          <div className="tab-content">
+            {activeTab === 'overview' && (
+              <div className="tab-pane fade show active">
+                <p className="card-text">{course.description}</p>
+                <p className="card-text">
+                  <strong>Instructor:</strong> {course.instructor}
+                </p>
+                <p className="card-text">
+                  <strong>Price:</strong> ${course.price.toFixed(2)}
+                </p>
+              </div>
+            )}
+
+            {activeTab === 'details' && (
+              <div className="tab-pane fade show active">
+                {/* Placeholder content for reviews and syllabus */}
+                <h5>Course Syllabus</h5>
+                <p>Coming soon...</p>
+                <h5>Student Reviews</h5>
+                <p>Coming soon...</p>
+              </div>
+            )}
+          </div>
+
+          <div className="d-flex flex-column flex-md-row justify-content-between mt-4">
+            <Link to="/courses" className="btn btn-outline-secondary mb-2 mb-md-0">
               &laquo; Back to Courses
             </Link>
-            <button
-              className="btn btn-primary"
-              onClick={() => addToCart(course)}
-            >
-              Add to Cart
-            </button>
+            <div>
+              <button
+                className="btn btn-success me-2"
+                onClick={() => {
+                  /* Placeholder: Add enrollment logic here */
+                  alert('Enroll Now clicked');
+                }}
+              >
+                Enroll Now
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => addToCart(course)}
+              >
+                Add to Cart
+              </button>
+            </div>
           </div>
         </div>
       </div>
