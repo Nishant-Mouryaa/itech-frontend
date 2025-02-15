@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './components/Home';
 import CourseDetail from './components/CourseDetail';
+import CourseList from './components/CourseList'; // Import this
 import Cart from './components/Cart';
 import Checkout from './components/Checkout';
 import Login from './components/Login';
@@ -19,6 +20,7 @@ const App = () => {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/courses" element={<CourseList />} /> {/* New route */}
           <Route path="/course/:id" element={<CourseDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
