@@ -1,12 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../axiosConfig';
-import './CourseList.css'; // Import custom CSS for additional spacing and hover effects
+import './CourseList.css';
 
 /**
- * Fetches and lists courses dynamically from the backend.
- * Optionally filters courses based on search and featured flags.
+ * Mapping for default icons based on course category.
+ * Adjust the paths to point to your icon assets.
  */
-const CourseList = ({ searchQuery = '', featuredOnly = false }) => {
+const categoryIcons = {
+  web: '/icons/web.png',            // e.g., icon representing HTML, CSS, JS
+  mobile: '/icons/mobile.png',      // e.g., icon for mobile development (Android/iOS)
+  data: '/icons/data.png',          // e.g., icon for data science courses
+  cloud: '/icons/cloud.png',        // e.g., icon for cloud computing
+  cybersecurity: '/icons/cybersecurity.png',
+};
+
+const CourseList = ({ searchQuery = '', featuredOnly = false, category = '' }) => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,7 +23,6 @@ const CourseList = ({ searchQuery = '', featuredOnly = false }) => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        // Build query parameters if needed.
         let endpoint = '/api/courses';
         const params = [];
         if (searchQuery) {
@@ -23,6 +30,9 @@ const CourseList = ({ searchQuery = '', featuredOnly = false }) => {
         }
         if (featuredOnly) {
           params.push(`featured=true`);
+        }
+        if (category) {
+          params.push(`category=${encodeURIComponent(category)}`);
         }
         if (sortOption !== 'default') {
           params.push(`sort=${sortOption}`);
@@ -42,7 +52,7 @@ const CourseList = ({ searchQuery = '', featuredOnly = false }) => {
     };
 
     fetchCourses();
-  }, [searchQuery, featuredOnly, sortOption]);
+  }, [searchQuery, featuredOnly, sortOption, category]);
 
   if (loading)
     return (
@@ -52,10 +62,8 @@ const CourseList = ({ searchQuery = '', featuredOnly = false }) => {
         </div>
       </div>
     );
-  if (error)
-    return <p className="text-danger text-center my-5">{error}</p>;
-  if (!courses.length)
-    return <p className="text-center my-5">No courses found.</p>;
+  if (error) return <p className="text-danger text-center my-5">{error}</p>;
+  if (!courses.length) return <p className="text-center my-5">No courses found.</p>;
 
   return (
     <div>
@@ -76,37 +84,53 @@ const CourseList = ({ searchQuery = '', featuredOnly = false }) => {
 
       {/* Courses Grid */}
       <div className="row">
-        {courses.map((course) => (
-          <div key={course._id} className="col-md-4 mb-4">
-            <div className="card h-100 shadow-sm course-card-custom">
-              {course.image ? (
-                <img
-                  src={course.image}
-                  className="card-img-top"
-                  alt={course.title}
-                  style={{ height: '200px', objectFit: 'cover' }}
-                />
-              ) : (
-                <div
-                  className="bg-secondary d-flex align-items-center justify-content-center"
-                  style={{ height: '200px', color: '#fff' }}
-                >
-                  No Image Available
+        {courses.map((course) => {
+          // Use the course's icon field if provided; otherwise, use the default icon for its category.
+          const courseIcon = course.icon || categoryIcons[course.category] || '/icons/default.png';
+          return (
+            <div key={course._id} className="col-md-4 mb-4">
+              <div className="card h-100 shadow-sm course-card-custom">
+                {course.image ? (
+                  <img
+                    src={course.image}
+                    className="card-img-top"
+                    alt={course.title}
+                    style={{ height: '200px', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <div
+                    className="bg-secondary d-flex align-items-center justify-content-center"
+                    style={{ height: '200px', color: '#fff' }}
+                  >
+                    No Image Available
+                  </div>
+                )}
+                <div className="card-body p-4 d-flex flex-column">
+                  <div className="d-flex align-items-center mb-2">
+                    <img
+                      src={courseIcon}
+                      alt={course.category}
+                      style={{
+                        width: '30px',
+                        height: '30px',
+                        objectFit: 'contain',
+                        marginRight: '0.5rem',
+                      }}
+                    />
+                    <h5 className="card-title mb-0">{course.title}</h5>
+                  </div>
+                  <p className="card-text flex-grow-1">
+                    {course.description.substring(0, 100)}...
+                  </p>
+                  <p className="fw-bold">${course.price.toFixed(2)}</p>
+                  <a href={`/course/${course._id}`} className="btn btn-primary mt-3 w-100">
+                    View Details
+                  </a>
                 </div>
-              )}
-              <div className="card-body p-4">
-                <h5 className="card-title">{course.title}</h5>
-                <p className="card-text flex-grow-1">
-                  {course.description.substring(0, 100)}...
-                </p>
-                <p className="fw-bold">${course.price.toFixed(2)}</p>
-                <a href={`/course/${course._id}`} className="btn btn-primary mt-3 w-100">
-                  View Details
-                </a>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
