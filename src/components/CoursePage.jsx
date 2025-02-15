@@ -2,7 +2,7 @@ import React from 'react';
 import CourseList from './CourseList';
 
 const CoursePage = () => {
-  // Define your categories. Adjust the `value` to match your backend's expected category filter.
+  // Define your categories with display names and filter values
   const categories = [
     { name: 'Web Development', value: 'web' },
     { name: 'Mobile Development', value: 'mobile' },
