@@ -8,10 +8,12 @@ import Checkout from './components/Checkout';
 import Login from './components/Login';
 import Register from './components/Register';
 import AdminPanel from './components/AdminPanel';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import { CartProvider } from './context/CartContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import Navbar from './components/Navbar';
-import { CartProvider } from './context/CartContext';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const App = () => {
   return (
@@ -20,7 +22,7 @@ const App = () => {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/courses" element={<CoursePage />} /> {/* New route */}
+          <Route path="/courses" element={<CoursePage />} />
           <Route path="/course/:id" element={<CourseDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
@@ -28,6 +30,7 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/admin" element={<AdminPanel />} />
         </Routes>
+        <Footer />
       </Router>
     </CartProvider>
   );
