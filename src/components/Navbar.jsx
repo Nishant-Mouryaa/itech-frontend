@@ -1,17 +1,13 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import './Navbar.css'; // Import the custom CSS
+import './Navbar.css';
 
-/**
- * Navbar component for the I Tech project.
- * Displays navigation links and user authentication actions.
- */
 const Navbar = () => {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <nav className="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
       <div className="container">
         <Link className="navbar-brand" to="/">I Tech</Link>
         <button
@@ -28,27 +24,19 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
-              <NavLink end className="nav-link" to="/">
-                Home
-              </NavLink>
+              <NavLink end className="nav-link" to="/">Home</NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/courses">
-                Courses
-              </NavLink>
+              <NavLink className="nav-link" to="/courses">Courses</NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/cart">
-                Cart
-              </NavLink>
+              <NavLink className="nav-link" to="/cart">Cart</NavLink>
             </li>
             {user ? (
               <>
                 {user.role === 'admin' && (
                   <li className="nav-item">
-                    <NavLink className="nav-link" to="/admin">
-                      Admin
-                    </NavLink>
+                    <NavLink className="nav-link" to="/admin">Admin</NavLink>
                   </li>
                 )}
                 <li className="nav-item">
@@ -64,14 +52,10 @@ const Navbar = () => {
             ) : (
               <>
                 <li className="nav-item">
-                  <NavLink className="nav-link" to="/login">
-                    Login
-                  </NavLink>
+                  <NavLink className="nav-link" to="/login">Login</NavLink>
                 </li>
                 <li className="nav-item">
-                  <NavLink className="nav-link" to="/register">
-                    Register
-                  </NavLink>
+                  <NavLink className="nav-link" to="/register">Register</NavLink>
                 </li>
               </>
             )}
