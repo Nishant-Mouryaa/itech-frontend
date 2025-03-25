@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import './Navbar.css'; // Import the custom CSS
 
 /**
  * Navbar component for the I Tech project.
@@ -10,7 +11,7 @@ const Navbar = () => {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav className="navbar navbar-expand-lg navbar-dark navbar-custom">
       <div className="container">
         <Link className="navbar-brand" to="/">I Tech</Link>
         <button
@@ -82,4 +83,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
- 

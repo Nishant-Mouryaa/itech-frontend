@@ -1,0 +1,19 @@
+/* Custom transparent navbar styling */
+.navbar-custom {
+    background-color: transparent !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000; /* Ensures it stays on top of the hero section */
+  }
+  
+  .navbar-custom .nav-link {
+    color: #fff; /* White text for better contrast over the hero background */
+  }
+  
+  .navbar-custom .nav-link.active,
+  .navbar-custom .nav-link:hover {
+    color: #000; /* Custom hover color if desired */
+  }
+  

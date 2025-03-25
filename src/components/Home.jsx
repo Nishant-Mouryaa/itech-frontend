@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CourseList from './CourseList';
-import Testimonial from './Testimonial'; // Import the testimonial component
+import Testimonial from './Testimonial';
+import Hero from './Hero'; // Import the new Hero component
 
 /**
- * Home page that displays an enhanced hero banner, a styled search bar,
- * a featured courses section, and the testimonials component.
+ * Home page that displays an enhanced hero banner (with gradient background),
+ * a styled search bar, a featured courses section, and the testimonials component.
  */
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -18,29 +19,7 @@ const Home = () => {
   return (
     <div>
       {/* Hero Banner Section */}
-      <section className="position-relative">
-        <div
-          className="bg-image"
-          style={{
-            backgroundImage: "url('/images/hero-banner.jpg')",
-            height: '500px',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        >
-          <div className="position-absolute top-50 start-50 translate-middle text-center bg-dark bg-opacity-50 p-5 rounded">
-            <h1 className="display-4 text-white fw-bold">
-              Welcome to I Tech Courses
-            </h1>
-            <p className="lead text-white-50 mt-3">
-              Discover, learn, and excel in your career.
-            </p>
-            <Link to="/register" className="btn btn-primary btn-lg mt-4">
-              Get Started
-            </Link>
-          </div>
-        </div>
-      </section>
+      <Hero />
 
       {/* Search Bar Section */}
       <section className="container my-5">
