@@ -1,15 +1,31 @@
-/* Custom transparent navbar styling */
+/* Transparent navbar style for the home page */
 .navbar-custom {
-    background-color: transparent !important;
-    z-index: 1100; /* Ensure it overlays the hero section */
-  }
-  
-  .navbar-custom .nav-link {
-    color: #fff; /* White text for better contrast */
-  }
-  
-  .navbar-custom .nav-link.active,
-  .navbar-custom .nav-link:hover {
-    color: #ff4500; /* Custom hover color */
-  }
-  
+  background-color: transparent !important;
+  z-index: 1100;
+}
+
+/* Solid navbar style for other pages */
+.navbar-solid {
+  background-color: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Adjust link colors based on navbar style */
+.navbar-custom .nav-link {
+  color: #fff;
+}
+
+.navbar-custom .nav-link.active,
+.navbar-custom .nav-link:hover {
+  color: #ff4500;
+}
+
+/* For solid navbar, use dark text for contrast on white */
+.navbar-solid .nav-link {
+  color: #333;
+}
+
+.navbar-solid .nav-link.active,
+.navbar-solid .nav-link:hover {
+  color: #ff4500;
+}

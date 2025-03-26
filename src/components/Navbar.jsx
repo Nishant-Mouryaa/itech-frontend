@@ -1,13 +1,22 @@
 import React from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import './Navbar.css';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const location = useLocation();
+  
+  // Check if the current route is the home page.
+  const isHomePage = location.pathname === '/';
+  
+  // If home page, use a transparent style; otherwise, use a light background.
+  const navbarClasses = isHomePage
+    ? 'navbar navbar-expand-lg navbar-dark navbar-custom fixed-top'
+    : 'navbar navbar-expand-lg navbar-light fixed-top navbar-solid';
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
+    <nav className={navbarClasses}>
       <div className="container">
         <Link className="navbar-brand" to="/">I Tech</Link>
         <button

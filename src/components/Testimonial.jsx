@@ -83,7 +83,7 @@ const Testimonial = () => {
       rating: 5,
       comment:
         "This platform transformed my career. The courses are insightful and the instructors are top-notch.",
-      image: "/images/testimonial1.jpg", // Ensure the path is correct
+      image: "https://linknagar.wordpress.com/wp-content/uploads/2025/03/chatgpt-image-mar-26-2025-10_22_09-pm.png", // Ensure the path is correct
     },
     {
       id: 2,
@@ -91,7 +91,7 @@ const Testimonial = () => {
       rating: 4,
       comment:
         "Excellent courses and fantastic support. I've learned so much and grown professionally.",
-      image: "/images/testimonial2.jpg",
+      image: "https://linknagar.wordpress.com/wp-content/uploads/2025/03/chatgpt-image-mar-26-2025-10_26_20-pm.png",
     },
     {
       id: 3,
@@ -99,7 +99,7 @@ const Testimonial = () => {
       rating: 5,
       comment:
         "The best online learning experience I've ever had. Highly recommended!",
-      image: "/images/testimonial3.jpg",
+      image: "https://linknagar.wordpress.com/wp-content/uploads/2025/03/chatgpt-image-mar-26-2025-10_29_48-pm.png",
     },
   ];
 
