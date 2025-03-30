@@ -1,5 +1,6 @@
 import React from 'react';
 import CourseList from './CourseList';
+import './CoursePage.css';
 
 const CoursePage = () => {
   // Define your categories with display names and filter values
@@ -12,14 +13,19 @@ const CoursePage = () => {
   ];
 
   return (
-    <div className="container my-5">
-      <h1 className="mb-4 text-center">Explore IT Courses</h1>
-      {categories.map((cat) => (
-        <section key={cat.value} className="mb-5">
-          <h2 className="mb-3">{cat.name}</h2>
-          <CourseList category={cat.value} />
-        </section>
-      ))}
+    <div className="course-page">
+      <header className="course-header">
+        <h1>Explore IT Courses</h1>
+        <p>Unlock your potential with our expertly curated courses tailored for today's tech landscape.</p>
+      </header>
+      <div className="course-content">
+        {categories.map((cat) => (
+          <section key={cat.value} className="course-section">
+            <h2 className="category-title">{cat.name}</h2>
+            <CourseList category={cat.value} />
+          </section>
+        ))}
+      </div>
     </div>
   );
 };
