@@ -177,10 +177,14 @@
   position: relative;
 }
 
+
 .sort-options .search-icon {
   position: absolute;
   left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
   color: #666;
+  font-size: 1.2rem;
 }
 
 .sort-options select {
@@ -189,6 +193,7 @@
   border: 1px solid #ddd;
   background: #fff;
   font-weight: 600;
+  
   cursor: pointer;
   appearance: none;
   outline: none;

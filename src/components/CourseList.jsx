@@ -151,7 +151,7 @@ const CourseList = ({ searchQuery = '', featuredOnly = false, category = '' }) =
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value)}
           >
-            <option value="popular">Most Popular</option>
+            <option value="popular" className='mostPopular'>Most Popular</option>
             <option value="rating">Highest Rated</option>
             <option value="newest">Newest</option>
             <option value="priceAsc">Price: Low to High</option>

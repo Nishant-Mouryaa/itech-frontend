@@ -10,6 +10,9 @@ import Register from './components/Register';
 import AdminPanel from './components/AdminPanel';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+
+import InstructorListPage from './components/InstructorListPage';
+import InstructorProfilePage from './components/InstructorProfilePage';
 import { CartProvider } from './context/CartContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -29,6 +32,8 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/instructors" element={<InstructorListPage />} />
+          <Route path="/instructor/:id" element={<InstructorProfilePage />} />
         </Routes>
         <Footer />
       </Router>

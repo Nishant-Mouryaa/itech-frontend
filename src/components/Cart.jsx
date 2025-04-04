@@ -1,126 +1,141 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
+import { FaTrash, FaShoppingCart, FaArrowLeft, FaLock } from 'react-icons/fa';
+import './Cart.css';
 
-/**
- * Displays the shopping cart with course details, order summary,
- * and options to remove courses, update quantities, clear cart, or proceed to checkout.
- */
 const Cart = () => {
   const { cart, removeFromCart, clearCart } = useContext(CartContext);
 
-  // Calculate the subtotal amount
+  // Calculate totals
   const subtotal = cart.reduce((total, item) => total + item.price, 0);
+  const tax = subtotal * 0.1; // 10% tax for example
+  const total = subtotal + tax;
 
   return (
-    <div className="container my-5">
-      <h1 className="mb-4">Your Cart</h1>
-      {cart.length === 0 ? (
-        <div className="alert alert-info" role="alert">
-          Your cart is empty.
+    <div className="cart-page">
+      <div className="container">
+        {/* Header with navigation */}
+        <div className="cart-header">
+          <Link to="/courses" className="back-link">
+            <FaArrowLeft /> Continue Shopping
+          </Link>
+          <h1 className="cart-title">
+            <FaShoppingCart /> Your Shopping Cart
+          </h1>
+          <div className="cart-count">{cart.length} {cart.length === 1 ? 'Course' : 'Courses'}</div>
         </div>
-      ) : (
-        <>
-          {/* Table Layout for Larger Screens */}
-          <div className="d-none d-lg-block">
-            <table className="table table-striped align-middle">
-              <thead>
-                <tr>
-                  <th scope="col">Course</th>
-                  <th scope="col">Price</th>
-                  <th scope="col" className="text-end">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cart.map((item) => (
-                  <tr key={item._id}>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        {item.image && (
-                          <img
-                            src={item.image}
-                            alt={item.title}
-                            className="img-thumbnail me-3"
-                            style={{ width: '80px', height: '60px', objectFit: 'cover' }}
-                          />
-                        )}
-                        <span>{item.title}</span>
-                      </div>
-                    </td>
-                    <td>${item.price.toFixed(2)}</td>
-                    <td className="text-end">
-                      <button
-                        onClick={() => removeFromCart(item._id)}
-                        className="btn btn-sm btn-danger"
-                      >
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
 
-          {/* Card Layout for Smaller Screens */}
-          <div className="d-block d-lg-none">
-            {cart.map((item) => (
-              <div key={item._id} className="card mb-3">
-                <div className="row g-0">
-                  {item.image && (
-                    <div className="col-4">
+        {cart.length === 0 ? (
+          <div className="empty-cart">
+            <div className="empty-cart-icon">
+              <FaShoppingCart size={48} />
+            </div>
+            <h2>Your cart is empty</h2>
+            <p>Browse our courses and find something to learn!</p>
+            <Link to="/courses" className="btn btn-primary">
+              Explore Courses
+            </Link>
+          </div>
+        ) : (
+          <div className="cart-content">
+            {/* Cart Items - Desktop View */}
+            <div className="cart-items desktop-view">
+              <div className="cart-items-header">
+                <div className="header-item">Course</div>
+                <div className="header-item">Price</div>
+                <div className="header-item">Action</div>
+              </div>
+              {cart.map((item) => (
+                <div key={item._id} className="cart-item">
+                  <div className="item-details">
+                    <div className="course-image">
                       <img
-                        src={item.image}
+                        src={item.image || '/images/course-placeholder.jpg'}
                         alt={item.title}
-                        className="img-fluid rounded-start"
-                        style={{ height: '100%', objectFit: 'cover' }}
                       />
                     </div>
-                  )}
-                  <div className="col">
-                    <div className="card-body">
-                      <h5 className="card-title">{item.title}</h5>
-                      <p className="card-text mb-1">${item.price.toFixed(2)}</p>
-                      <button
-                        onClick={() => removeFromCart(item._id)}
-                        className="btn btn-sm btn-danger"
-                      >
-                        Remove
-                      </button>
+                    <div className="course-info">
+                      <h3 className="course-title">{item.title}</h3>
+                      <div className="instructor">By {item.instructor || 'I-Tech Academy'}</div>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Order Summary Section */}
-          <div className="row mt-4">
-            <div className="col-lg-8">
-              <button onClick={clearCart} className="btn btn-outline-danger">
-                Clear Cart
-              </button>
-            </div>
-            <div className="col-lg-4">
-              <div className="card shadow-sm">
-                <div className="card-body">
-                  <h5 className="card-title">Order Summary</h5>
-                  <hr />
-                  <div className="d-flex justify-content-between">
-                    <span>Subtotal:</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                  <div className="item-price">${item.price.toFixed(2)}</div>
+                  <div className="item-actions">
+                    <button
+                      onClick={() => removeFromCart(item._id)}
+                      className="btn btn-remove"
+                      aria-label="Remove item"
+                    >
+                      <FaTrash />
+                    </button>
                   </div>
-                  {/* Additional details like tax or shipping can be added here */}
-                  <hr />
-                  <Link to="/checkout" className="btn btn-primary w-100">
-                    Proceed to Checkout
-                  </Link>
+                </div>
+              ))}
+            </div>
+
+            {/* Cart Items - Mobile View */}
+            <div className="cart-items mobile-view">
+              {cart.map((item) => (
+                <div key={item._id} className="cart-item">
+                  <div className="item-details">
+                    <div className="course-image">
+                      <img
+                        src={item.image || '/images/course-placeholder.jpg'}
+                        alt={item.title}
+                      />
+                    </div>
+                    <div className="course-info">
+                      <h3 className="course-title">{item.title}</h3>
+                      <div className="instructor">By {item.instructor || 'I-Tech Academy'}</div>
+                      <div className="item-price">${item.price.toFixed(2)}</div>
+                    </div>
+                  </div>
+                  <div className="item-actions">
+                    <button
+                      onClick={() => removeFromCart(item._id)}
+                      className="btn btn-remove"
+                      aria-label="Remove item"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Order Summary */}
+            <div className="order-summary">
+              <div className="summary-card">
+                <h3 className="summary-title">Order Summary</h3>
+                <div className="summary-row">
+                  <span>Subtotal ({cart.length} items)</span>
+                  <span>${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="summary-row">
+                  <span>Tax (10%)</span>
+                  <span>${tax.toFixed(2)}</span>
+                </div>
+                <div className="summary-divider"></div>
+                <div className="summary-row total">
+                  <span>Total</span>
+                  <span>${total.toFixed(2)}</span>
+                </div>
+                <Link to="/checkout" className="btn btn-checkout">
+                  <FaLock /> Secure Checkout
+                </Link>
+                <button onClick={clearCart} className="btn btn-clear">
+                  <FaTrash /> Clear Cart
+                </button>
+                <div className="security-info">
+                  <FaLock className="lock-icon" />
+                  <span>Secure payment processing</span>
                 </div>
               </div>
             </div>
           </div>
-        </>
-      )}
+        )}
+      </div>
     </div>
   );
 };
