@@ -2,7 +2,12 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from '../axiosConfig';
 import { CartContext } from '../context/CartContext';
-import { FaStar, FaRegStar, FaStarHalfAlt, FaClock, FaUserTie, FaMoneyBillWave, FaBook, FaChartBar, FaShoppingCart, FaPlayCircle, FaCheck, FaVideo, FaFileAlt, FaMobileAlt, FaCertificate, FaInfinity } from 'react-icons/fa';
+import { 
+  FaStar, FaRegStar, FaStarHalfAlt, FaClock, FaUserTie, 
+  FaMoneyBillWave, FaBook, FaChartBar, FaShoppingCart, 
+  FaPlayCircle, FaCheck, FaVideo, FaFileAlt, FaMobileAlt, 
+  FaCertificate, FaInfinity, FaChevronRight, FaChevronDown
+} from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import ReactPlayer from 'react-player';
 import './CourseDetail.css';
@@ -15,6 +20,7 @@ const CourseDetail = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const { addToCart } = useContext(CartContext);
   const [previewPlaying, setPreviewPlaying] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({});
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -22,6 +28,12 @@ const CourseDetail = () => {
         setLoading(true);
         const res = await axios.get(`/api/courses/${id}`);
         setCourse(res.data);
+        // Initialize all sections as collapsed
+        const sections = {};
+        res.data?.curriculum?.forEach((_, index) => {
+          sections[index] = index === 0; // Only first section expanded by default
+        });
+        setExpandedSections(sections);
       } catch (err) {
         console.error(err);
         setError('Failed to load course details. Please try again later.');
@@ -33,6 +45,13 @@ const CourseDetail = () => {
     fetchCourse();
   }, [id]);
 
+  const toggleSection = (index) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
+
   const renderRatingStars = (rating) => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -40,22 +59,52 @@ const CourseDetail = () => {
     
     for (let i = 1; i <= 5; i++) {
       if (i <= fullStars) {
-        stars.push(<FaStar key={i} className="text-warning" />);
+        stars.push(<FaStar key={i} className="star-icon" />);
       } else if (i === fullStars + 1 && hasHalfStar) {
-        stars.push(<FaStarHalfAlt key={i} className="text-warning" />);
+        stars.push(<FaStarHalfAlt key={i} className="star-icon" />);
       } else {
-        stars.push(<FaRegStar key={i} className="text-warning" />);
+        stars.push(<FaRegStar key={i} className="star-icon" />);
       }
     }
     
     return stars;
   };
 
+  const renderRatingDistribution = () => {
+    // Sample distribution - in a real app this would come from your data
+    const distribution = [
+      { stars: 5, percentage: 65 },
+      { stars: 4, percentage: 20 },
+      { stars: 3, percentage: 10 },
+      { stars: 2, percentage: 3 },
+      { stars: 1, percentage: 2 }
+    ];
+
+    return (
+      <div className="rating-distribution">
+        {distribution.map((item, index) => (
+          <div key={index} className="rating-bar-container">
+            <div className="rating-label">
+              {item.stars} <FaStar className="star-icon small" />
+            </div>
+            <div className="rating-bar-bg">
+              <div 
+                className="rating-bar-fill" 
+                style={{ width: `${item.percentage}%` }}
+              ></div>
+            </div>
+            <div className="rating-percentage">{item.percentage}%</div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="course-detail-loading">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+        <div className="loading-spinner">
+          <div className="spinner"></div>
         </div>
         <p>Loading course details...</p>
       </div>
@@ -64,14 +113,16 @@ const CourseDetail = () => {
 
   if (error) {
     return (
-      <div className="container my-5">
-        <div className="alert alert-danger text-center">
-          {error}
+      <div className="error-container">
+        <div className="error-card">
+          <div className="error-icon">⚠️</div>
+          <h3>Oops! Something went wrong</h3>
+          <p>{error}</p>
           <button 
-            className="btn btn-link p-0 ms-2"
+            className="btn-retry"
             onClick={() => window.location.reload()}
           >
-            Try again
+            Try Again
           </button>
         </div>
       </div>
@@ -85,103 +136,126 @@ const CourseDetail = () => {
   return (
     <div className="course-detail-container">
       {/* Course Hero Section */}
-      <div className="course-hero">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-8">
-              <nav aria-label="breadcrumb">
-                <ol className="breadcrumb">
-                  <li className="breadcrumb-item"><Link to="/courses">Courses</Link></li>
-                  <li className="breadcrumb-item"><Link to={`/courses/${course.category}`}>{course.category}</Link></li>
-                  <li className="breadcrumb-item active" aria-current="page">{course.title}</li>
-                </ol>
-              </nav>
-              
-              <h1 className="course-title">{course.title}</h1>
+      <section className="course-hero">
+        <div className="hero-container">
+          <nav aria-label="breadcrumb" className="breadcrumb-nav">
+            <ol className="breadcrumb-list">
+              <li className="breadcrumb-item">
+                <Link to="/courses" className="breadcrumb-link">Courses</Link>
+              </li>
+              <li className="breadcrumb-divider">/</li>
+              <li className="breadcrumb-item">
+                <Link to={`/courses/${course.category}`} className="breadcrumb-link">
+                  {course.category.charAt(0).toUpperCase() + course.category.slice(1)}
+                </Link>
+              </li>
+              <li className="breadcrumb-divider">/</li>
+              <li className="breadcrumb-item active">{course.title}</li>
+            </ol>
+          </nav>
+          
+          <div className="hero-content">
+            <div className="course-info">
+              <motion.h1 
+                className="course-title"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                {course.title}
+              </motion.h1>
               
               <div className="course-meta">
-                <div className="rating">
-                  {renderRatingStars(course.rating || 4.5)}
-                  <span>({course.reviewsCount || 124} reviews)</span>
+                <div className="rating-badge">
+                  <div className="rating-stars">
+                    {renderRatingStars(course.rating || 4.5)}
+                  </div>
+                  <div className="rating-text">
+                    <span className="rating-value">{course.rating || 4.5}</span>
+                    <span className="rating-count">({course.reviewsCount || 124} reviews)</span>
+                  </div>
                 </div>
-                <div className="students">
-                  <FaUserTie className="me-1" />
-                  {course.students || 0} students enrolled
+                
+                <div className="enrollment-badge">
+                  <FaUserTie className="enrollment-icon" />
+                  <span>{course.students?.toLocaleString() || '1,250'} students enrolled</span>
+                </div>
+                
+                <div className="level-badge">
+                  <span>{course.level || 'Intermediate'} Level</span>
                 </div>
               </div>
               
-              <p className="course-excerpt">{course.shortDescription || course.description.substring(0, 150)}...</p>
+              <p className="course-excerpt">
+                {course.shortDescription || course.description.substring(0, 180)}...
+              </p>
               
               <div className="instructor-info">
-                <img 
-                  src={course.instructorAvatar || 'https://via.placeholder.com/50'} 
-                  alt={course.instructor} 
-                  className="instructor-avatar"
-                />
-                <div>
+                <div className="instructor-avatar-container">
+                  <img 
+                    src={course.instructorAvatar || 'https://via.placeholder.com/80'} 
+                    alt={course.instructor} 
+                    className="instructor-avatar"
+                  />
+                  <div className="instructor-verified">✓</div>
+                </div>
+                <div className="instructor-details">
                   <span className="instructor-label">Created by</span>
                   <h4 className="instructor-name">{course.instructor}</h4>
+                  <p className="instructor-title">{course.instructorTitle || 'Senior Instructor'}</p>
                 </div>
               </div>
             </div>
             
-            <div className="col-lg-4">
-              <div className="course-card">
+            <div className="course-card">
+              <motion.div 
+                className="preview-container"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
                 {course.previewVideo ? (
-                  <div className="preview-video">
-                    <ReactPlayer
-                      url={course.previewVideo}
-                      width="100%"
-                      height="200px"
-                      controls
-                      playing={previewPlaying}
-                      light={course.image}
-                      playIcon={<FaPlayCircle size={48} />}
-                      onClickPreview={() => setPreviewPlaying(true)}
-                    />
-                  </div>
+                  <ReactPlayer
+                    url={course.previewVideo}
+                    width="100%"
+                    height="100%"
+                    controls
+                    playing={previewPlaying}
+                    light={course.image}
+                    playIcon={
+                      <div className="play-button">
+                        <FaPlayCircle size={48} />
+                        <span>Preview this course</span>
+                      </div>
+                    }
+                    onClickPreview={() => setPreviewPlaying(true)}
+                  />
                 ) : (
                   <img
                     src={course.image}
-                    className="card-img-top"
+                    className="course-image"
                     alt={course.title}
                   />
                 )}
+              </motion.div>
+              
+              <div className="pricing-section">
+                {course.discount ? (
+                  <div className="price-container">
+                    <div className="current-price">${course.price.toFixed(2)}</div>
+                    <div className="original-price">${course.originalPrice.toFixed(2)}</div>
+                    <div className="discount-badge">Save {course.discount}%</div>
+                  </div>
+                ) : (
+                  <div className="price-container">
+                    <div className="current-price">${course.price.toFixed(2)}</div>
+                  </div>
+                )}
                 
-                <div className="course-pricing">
-                  <div className="price">
-                    ${course.price.toFixed(2)}
-                    {course.originalPrice && (
-                      <span className="original-price">${course.originalPrice.toFixed(2)}</span>
-                    )}
-                  </div>
-                  {course.discount && (
-                    <div className="discount-badge">
-                      {course.discount}% OFF
-                    </div>
-                  )}
-                </div>
-                
-                <div className="course-features">
-                  <div className="feature">
-                    <FaClock className="feature-icon" />
-                    <span>{course.duration || '8 hours'} of content</span>
-                  </div>
-                  <div className="feature">
-                    <FaBook className="feature-icon" />
-                    <span>{course.lessonsCount || 12} lessons</span>
-                  </div>
-                  <div className="feature">
-                    <FaChartBar className="feature-icon" />
-                    <span>{course.level || 'Intermediate'} level</span>
-                  </div>
-                </div>
-                
-                <div className="course-actions">
+                <div className="action-buttons">
                   <motion.button
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.98 }}
-                    className="btn btn-enroll"
+                    className="btn-enroll"
                     onClick={() => {
                       // Enrollment logic here
                       alert('Enrollment successful!');
@@ -193,89 +267,106 @@ const CourseDetail = () => {
                   <motion.button
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.98 }}
-                    className="btn btn-cart"
+                    className="btn-cart"
                     onClick={() => addToCart(course)}
                   >
-                    <FaShoppingCart className="me-2" />
+                    <FaShoppingCart className="cart-icon" />
                     Add to Cart
                   </motion.button>
                 </div>
                 
-                <div className="money-back">
-                  <FaMoneyBillWave className="me-2" />
-                  30-day money-back guarantee
+                <div className="guarantee-badge">
+                  <FaMoneyBillWave className="guarantee-icon" />
+                  <span>30-Day Money-Back Guarantee</span>
+                </div>
+                
+                <div className="course-highlights">
+                  <h4>This course includes:</h4>
+                  <ul className="highlight-list">
+                    <li>
+                      <FaVideo className="highlight-icon" />
+                      <span>{course.videoHours || 8} hours on-demand video</span>
+                    </li>
+                    <li>
+                      <FaFileAlt className="highlight-icon" />
+                      <span>{course.resourcesCount || 5} downloadable resources</span>
+                    </li>
+                    <li>
+                      <FaMobileAlt className="highlight-icon" />
+                      <span>Access on mobile and TV</span>
+                    </li>
+                    <li>
+                      <FaCertificate className="highlight-icon" />
+                      <span>Certificate of completion</span>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Course Content Section */}
-      <div className="course-content">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-8">
-              {/* Tab Navigation */}
-              <ul className="nav nav-tabs" id="courseTabs" role="tablist">
-                <li className="nav-item" role="presentation">
-                  <button
-                    className={`nav-link ${activeTab === 'overview' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('overview')}
-                    type="button"
-                    role="tab"
-                  >
-                    Overview
-                  </button>
-                </li>
-                <li className="nav-item" role="presentation">
-                  <button
-                    className={`nav-link ${activeTab === 'curriculum' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('curriculum')}
-                    type="button"
-                    role="tab"
-                  >
-                    Curriculum
-                  </button>
-                </li>
-                <li className="nav-item" role="presentation">
-                  <button
-                    className={`nav-link ${activeTab === 'reviews' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('reviews')}
-                    type="button"
-                    role="tab"
-                  >
-                    Reviews
-                  </button>
-                </li>
-              </ul>
-
-              {/* Tab Content */}
-              <div className="tab-content mt-4">
-                {activeTab === 'overview' && (
-                  <div className="tab-pane fade show active">
+      <section className="course-content-section">
+        <div className="content-container">
+          <div className="main-content">
+            <div className="tab-navigation">
+              <button
+                className={`tab-button ${activeTab === 'overview' ? 'active' : ''}`}
+                onClick={() => setActiveTab('overview')}
+              >
+                Overview
+              </button>
+              <button
+                className={`tab-button ${activeTab === 'curriculum' ? 'active' : ''}`}
+                onClick={() => setActiveTab('curriculum')}
+              >
+                Curriculum
+              </button>
+              <button
+                className={`tab-button ${activeTab === 'reviews' ? 'active' : ''}`}
+                onClick={() => setActiveTab('reviews')}
+              >
+                Reviews
+              </button>
+            </div>
+            
+            <div className="tab-content">
+              {activeTab === 'overview' && (
+                <div className="overview-tab">
+                  <div className="section">
                     <h3>About This Course</h3>
                     <p className="course-description">{course.description}</p>
-                    
-                    <h3 className="mt-5">What You'll Learn</h3>
+                  </div>
+                  
+                  <div className="section">
+                    <h3>What You'll Learn</h3>
                     <ul className="learning-outcomes">
                       {course.learningOutcomes?.map((outcome, index) => (
-                        <li key={index}>
-                          <FaCheck className="me-2" />
-                          {outcome}
-                        </li>
+                        <motion.li 
+                          key={index}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                        >
+                          <FaCheck className="outcome-icon" />
+                          <span>{outcome}</span>
+                        </motion.li>
                       )) || (
                         <>
-                          <li><FaCheck className="me-2" />Key concept 1</li>
-                          <li><FaCheck className="me-2" />Key concept 2</li>
-                          <li><FaCheck className="me-2" />Key concept 3</li>
-                          <li><FaCheck className="me-2" />Key concept 4</li>
+                          <li><FaCheck className="outcome-icon" />Key concept 1</li>
+                          <li><FaCheck className="outcome-icon" />Key concept 2</li>
+                          <li><FaCheck className="outcome-icon" />Key concept 3</li>
+                          <li><FaCheck className="outcome-icon" />Key concept 4</li>
                         </>
                       )}
                     </ul>
-                    
-                    <h3 className="mt-5">Requirements</h3>
-                    <ul className="requirements">
+                  </div>
+                  
+                  <div className="section">
+                    <h3>Requirements</h3>
+                    <ul className="requirements-list">
                       {course.requirements?.map((req, index) => (
                         <li key={index}>{req}</li>
                       )) || (
@@ -287,140 +378,201 @@ const CourseDetail = () => {
                       )}
                     </ul>
                   </div>
-                )}
+                </div>
+              )}
 
-                {activeTab === 'curriculum' && (
-                  <div className="tab-pane fade show active">
-                    <div className="accordion" id="curriculumAccordion">
-                      {course.curriculum?.map((section, sectionIndex) => (
-                        <div className="accordion-item" key={sectionIndex}>
-                          <h2 className="accordion-header" id={`heading${sectionIndex}`}>
-                            <button
-                              className="accordion-button"
-                              type="button"
-                              data-bs-toggle="collapse"
-                              data-bs-target={`#collapse${sectionIndex}`}
-                              aria-expanded={sectionIndex === 0 ? 'true' : 'false'}
-                              aria-controls={`collapse${sectionIndex}`}
-                            >
-                              {section.title}
-                              <span className="ms-auto badge bg-secondary">
-                                {section.lessons.length} lessons
-                              </span>
-                            </button>
-                          </h2>
-                          <div
-                            id={`collapse${sectionIndex}`}
-                            className={`accordion-collapse collapse ${sectionIndex === 0 ? 'show' : ''}`}
-                            aria-labelledby={`heading${sectionIndex}`}
-                            data-bs-parent="#curriculumAccordion"
-                          >
-                            <div className="accordion-body">
-                              <ul className="lesson-list">
-                                {section.lessons.map((lesson, lessonIndex) => (
-                                  <li key={lessonIndex}>
-                                    <div className="lesson-item">
-                                      <FaPlayCircle className="lesson-icon" />
-                                      <span>{lesson.title}</span>
-                                      <span className="lesson-duration">{lesson.duration}</span>
-                                    </div>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-                      )) || (
-                        <div className="alert alert-info">
-                          Curriculum details coming soon!
-                        </div>
-                      )}
+              {activeTab === 'curriculum' && (
+                <div className="curriculum-tab">
+                  <div className="curriculum-stats">
+                    <div className="stat-item">
+                      <span className="stat-value">{course.lessonsCount || 42}</span>
+                      <span className="stat-label">Lessons</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-value">{course.duration || '8h 15m'}</span>
+                      <span className="stat-label">Total length</span>
                     </div>
                   </div>
-                )}
-
-                {activeTab === 'reviews' && (
-                  <div className="tab-pane fade show active">
-                    <div className="reviews-summary">
-                      <div className="average-rating">
-                        <h2>{course.rating || 4.5}</h2>
-                        <div className="stars">
-                          {renderRatingStars(course.rating || 4.5)}
+                  
+                  <div className="curriculum-sections">
+                    {course.curriculum?.map((section, sectionIndex) => (
+                      <div key={sectionIndex} className="curriculum-section">
+                        <div 
+                          className="section-header"
+                          onClick={() => toggleSection(sectionIndex)}
+                        >
+                          <div className="section-title">
+                            {expandedSections[sectionIndex] ? (
+                              <FaChevronDown className="chevron-icon" />
+                            ) : (
+                              <FaChevronRight className="chevron-icon" />
+                            )}
+                            <h4>{section.title}</h4>
+                          </div>
+                          <div className="section-meta">
+                            <span>{section.lessons.length} lessons</span>
+                            <span>•</span>
+                            <span>{
+                              section.lessons.reduce((total, lesson) => {
+                                const [mins, secs] = lesson.duration.split(':').map(Number);
+                                return total + mins + (secs / 60);
+                              }, 0).toFixed(1)
+                            }h</span>
+                          </div>
                         </div>
-                        <p>Course Rating</p>
+                        
+                        {expandedSections[sectionIndex] && (
+                          <motion.div
+                            className="section-content"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <ul className="lesson-list">
+                              {section.lessons.map((lesson, lessonIndex) => (
+                                <li key={lessonIndex} className="lesson-item">
+                                  <div className="lesson-info">
+                                    <FaPlayCircle className="lesson-icon" />
+                                    <span className="lesson-title">{lesson.title}</span>
+                                  </div>
+                                  <span className="lesson-duration">{lesson.duration}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </motion.div>
+                        )}
                       </div>
-                      <div className="rating-distribution">
-                        {/* Rating distribution bars would go here */}
+                    )) || (
+                      <div className="empty-curriculum">
+                        <p>Curriculum details coming soon!</p>
                       </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'reviews' && (
+                <div className="reviews-tab">
+                  <div className="reviews-summary">
+                    <div className="average-rating">
+                      <h2>{course.rating || 4.5}</h2>
+                      <div className="rating-stars">
+                        {renderRatingStars(course.rating || 4.5)}
+                      </div>
+                      <p>Course Rating</p>
+                      <span className="rating-count">{course.reviewsCount || 124} reviews</span>
                     </div>
                     
-                    <div className="reviews-list">
-                      {course.reviews?.slice(0, 5).map((review, index) => (
-                        <div className="review-card" key={index}>
-                          <div className="review-header">
-                            <img src={review.userAvatar} alt={review.userName} />
-                            <div>
-                              <h5>{review.userName}</h5>
-                              <div className="review-rating">
-                                {renderRatingStars(review.rating)}
-                                <span>{new Date(review.date).toLocaleDateString()}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <p className="review-content">{review.content}</p>
-                        </div>
-                      )) || (
-                        <div className="alert alert-info">
-                          No reviews yet. Be the first to review!
-                        </div>
-                      )}
+                    <div className="rating-distribution">
+                      {renderRatingDistribution()}
                     </div>
                   </div>
-                )}
+                  
+                  <div className="reviews-list">
+                    {course.reviews?.slice(0, 5).map((review, index) => (
+                      <motion.div 
+                        key={index}
+                        className="review-card"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                      >
+                        <div className="review-header">
+                          <img 
+                            src={review.userAvatar || 'https://via.placeholder.com/60'} 
+                            alt={review.userName} 
+                            className="reviewer-avatar"
+                          />
+                          <div className="reviewer-info">
+                            <h5 className="reviewer-name">{review.userName}</h5>
+                            <div className="review-rating">
+                              {renderRatingStars(review.rating)}
+                              <span className="review-date">
+                                {new Date(review.date).toLocaleDateString('en-US', {
+                                  year: 'numeric', 
+                                  month: 'long', 
+                                  day: 'numeric'
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="review-content">{review.content}</p>
+                      </motion.div>
+                    )) || (
+                      <div className="no-reviews">
+                        <p>No reviews yet. Be the first to review!</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <div className="sidebar">
+            <div className="sidebar-card instructor-card">
+              <h4>About the Instructor</h4>
+              <div className="instructor-profile">
+                <img 
+                  src={course.instructorAvatar || 'https://via.placeholder.com/120'} 
+                  alt={course.instructor} 
+                  className="instructor-sidebar-avatar"
+                />
+                <h5 className="instructor-sidebar-name">{course.instructor}</h5>
+                <p className="instructor-sidebar-title">{course.instructorTitle || 'Senior Instructor'}</p>
+                
+                <div className="instructor-stats">
+                  <div className="stat-item">
+                    <FaStar className="stat-icon" />
+                    <span>{course.instructorRating || 4.7} Instructor Rating</span>
+                  </div>
+                  <div className="stat-item">
+                    <FaUserTie className="stat-icon" />
+                    <span>{course.instructorStudents?.toLocaleString() || '2,450'} Students</span>
+                  </div>
+                  <div className="stat-item">
+                    <FaBook className="stat-icon" />
+                    <span>{course.instructorCourses || 5} Courses</span>
+                  </div>
+                </div>
+                
+                <p className="instructor-bio">
+                  {course.instructorBio || 'Experienced professional with years of industry experience.'}
+                </p>
               </div>
             </div>
             
-            <div className="col-lg-4">
-              <div className="course-sidebar">
-                <div className="sidebar-card">
-                  <h4>This Course Includes</h4>
-                  <ul className="course-includes">
-                    <li><FaVideo className="me-2" />{course.videoHours || 8} hours on-demand video</li>
-                    <li><FaFileAlt className="me-2" />{course.resourcesCount || 5} downloadable resources</li>
-                    <li><FaMobileAlt className="me-2" />Access on mobile and TV</li>
-                    <li><FaCertificate className="me-2" />Certificate of completion</li>
-                    <li><FaInfinity className="me-2" />Full lifetime access</li>
-                  </ul>
+            <div className="sidebar-card more-courses-card">
+              <h4>More Courses by {course.instructor}</h4>
+              {/* In a real app, these would be fetched from the API */}
+              <div className="course-teaser">
+                <div className="teaser-image"></div>
+                <div className="teaser-info">
+                  <h5>Advanced React Patterns</h5>
+                  <div className="teaser-meta">
+                    <span>12 hours</span>
+                    <span>•</span>
+                    <span>4.8 ★</span>
+                  </div>
                 </div>
-                
-                <div className="sidebar-card">
-                  <h4>About the Instructor</h4>
-                  <div className="instructor-details">
-                    <img 
-                      src={course.instructorAvatar || 'https://via.placeholder.com/100'} 
-                      alt={course.instructor} 
-                    />
-                    <h5>{course.instructor}</h5>
-                    <p className="instructor-title">{course.instructorTitle || 'Senior Instructor'}</p>
-                    <div className="instructor-rating">
-                      <FaStar className="text-warning" />
-                      <span>{course.instructorRating || 4.7} Instructor Rating</span>
-                    </div>
-                    <div className="instructor-stats">
-                      <span>{course.instructorReviews || 124} Reviews</span>
-                      <span>{course.instructorStudents || 2450} Students</span>
-                      <span>{course.instructorCourses || 5} Courses</span>
-                    </div>
-                    <p className="instructor-bio">
-                      {course.instructorBio || 'Experienced professional with years of industry experience.'}
-                    </p>
+              </div>
+              <div className="course-teaser">
+                <div className="teaser-image"></div>
+                <div className="teaser-info">
+                  <h5>JavaScript Masterclass</h5>
+                  <div className="teaser-meta">
+                    <span>15 hours</span>
+                    <span>•</span>
+                    <span>4.9 ★</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

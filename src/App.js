@@ -10,6 +10,9 @@ import Register from './components/Register';
 import AdminPanel from './components/AdminPanel';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import Dashboard from './components/Dashboard';
+
+
 
 import InstructorListPage from './components/InstructorListPage';
 import InstructorProfilePage from './components/InstructorProfilePage';
@@ -18,11 +21,23 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
+import DashboardHome from './components/dashboard/DashboardHome';
+import MyCourses from './components/dashboard/MyCourses';
+import Learning from './components/dashboard/Learning';
+import Progress from './components/dashboard/Progress';
+import DashboardCart from './components/dashboard/Cart';
+import Profile from './components/dashboard/Profile';
+import Settings from './components/dashboard/Settings';
+
+// Inside your Routes component
+
+
 const App = () => {
   return (
     <CartProvider>
       <Router>
         <Navbar />
+
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/courses" element={<CoursePage />} />
@@ -34,7 +49,20 @@ const App = () => {
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/instructors" element={<InstructorListPage />} />
           <Route path="/instructor/:id" element={<InstructorProfilePage />} />
+
+          {/* Dashboard & nested pages */}
+          <Route path="/dashboard" element={<Dashboard />}>
+  <Route index element={<DashboardHome />} />
+  <Route path="my-courses" element={<MyCourses />} />
+  <Route path="learning" element={<Learning />} />
+  <Route path="progress" element={<Progress />} />
+  <Route path="cart" element={<DashboardCart />} />
+  <Route path="profile" element={<Profile />} />
+  <Route path="settings" element={<Settings />} />
+</Route>
+
         </Routes>
+
         <Footer />
       </Router>
     </CartProvider>

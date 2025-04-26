@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaGoogle, FaGithub, FaApple } from 'react-icons/fa';
@@ -6,7 +6,7 @@ import { FiAlertCircle } from 'react-icons/fi';
 import './Login.css';
 
 const LoginPage = () => {
-  const { login } = useAuth();
+  const { login, socialLogin } = useAuth();
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
@@ -18,6 +18,32 @@ const LoginPage = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [gapiLoaded, setGapiLoaded] = useState(false);
+
+  // Load Google API script
+  useEffect(() => {
+    const loadGoogleApi = () => {
+      const script = document.createElement('script');
+      script.src = 'https://apis.google.com/js/api.js';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        window.gapi.load('auth2', () => {
+          window.gapi.auth2.init({
+            client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+            scope: 'profile email'
+          }).then(() => setGapiLoaded(true));
+        });
+      };
+      document.body.appendChild(script);
+    };
+
+    if (!window.gapi) {
+      loadGoogleApi();
+    } else {
+      setGapiLoaded(true);
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,10 +51,10 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      await login(formData);
+      await login(formData.email, formData.password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message || 'Login failed. Please check your credentials and try again.');
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -42,9 +68,45 @@ const LoginPage = () => {
     }));
   };
 
-  const handleSocialLogin = (provider) => {
-    // Implement social login functionality
-    console.log(`Logging in with ${provider}`);
+  const handleGoogleLogin = async () => {
+    setError(null);
+    setLoading(true);
+    
+    try {
+      if (!gapiLoaded) {
+        throw new Error('Google sign-in is not ready yet. Please try again.');
+      }
+      
+      const googleAuth = window.gapi.auth2.getAuthInstance();
+      const googleUser = await googleAuth.signIn();
+      const token = googleUser.getAuthResponse().id_token;
+      
+      await socialLogin('google', token);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message || 'Google login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSocialLogin = async (provider) => {
+    setError(null);
+    setLoading(true);
+    
+    try {
+      if (provider === 'google') {
+        await handleGoogleLogin();
+        return;
+      }
+      
+      await socialLogin(provider);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message || `${provider} login failed. Please try again.`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -172,6 +234,7 @@ const LoginPage = () => {
               disabled={loading}
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
+              
             >
               {loading ? (
                 <span className="spinner"></span>
@@ -192,6 +255,7 @@ const LoginPage = () => {
                 type="button" 
                 className="social-btn google"
                 onClick={() => handleSocialLogin('google')}
+                disabled={!gapiLoaded || loading}
               >
                 <FaGoogle />
                 Google
@@ -200,6 +264,7 @@ const LoginPage = () => {
                 type="button" 
                 className="social-btn github"
                 onClick={() => handleSocialLogin('github')}
+                disabled={loading}
               >
                 <FaGithub />
                 GitHub
@@ -208,6 +273,7 @@ const LoginPage = () => {
                 type="button" 
                 className="social-btn apple"
                 onClick={() => handleSocialLogin('apple')}
+                disabled={loading}
               >
                 <FaApple />
                 Apple

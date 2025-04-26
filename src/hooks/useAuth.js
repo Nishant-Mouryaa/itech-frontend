@@ -1,40 +1,100 @@
-import { useState } from 'react';
-import axios from '../axiosConfig';
+// src/hooks/useAuth.js
+import { useState, useEffect } from 'react';
+import { 
+  auth,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  OAuthProvider,
+  signOut,
+  onAuthStateChanged
+} from '../firebase';
 
-/**
- * Custom hook for handling authentication (login, register, logout)
- */
 export const useAuth = () => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = async ({ email, password }) => {
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
+    });
+    return unsubscribe;
+  }, []);
+
+  const login = async (email, password) => {
     try {
-      const res = await axios.post('/api/auth/login', { email, password });
-      localStorage.setItem('token', res.data.token);
-      setUser({ email });
-    } catch (err) {
-      console.error(err);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      return userCredential.user;
+    } catch (error) {
+      throw new Error(getFirebaseError(error.code));
     }
   };
 
-  const register = async ({ name, email, password }) => {
+  const socialLogin = async (provider, token) => {
     try {
-      const res = await axios.post('/api/auth/register', {
-        name,
-        email,
-        password
-      });
-      localStorage.setItem('token', res.data.token);
-      setUser({ name, email });
-    } catch (err) {
-      console.error(err);
+      let providerInstance;
+      switch(provider) {
+        case 'google':
+          providerInstance = new GoogleAuthProvider();
+          if (token) {
+            providerInstance.addScope('email');
+            providerInstance.addScope('profile');
+            const credential = GoogleAuthProvider.credential(token);
+            return await signInWithPopup(auth, providerInstance, credential);
+          }
+          break;
+        case 'github':
+          providerInstance = new GithubAuthProvider();
+          break;
+        case 'apple':
+          providerInstance = new OAuthProvider('apple.com');
+          break;
+        default:
+          throw new Error('Unsupported provider');
+      }
+      return await signInWithPopup(auth, providerInstance);
+    } catch (error) {
+      throw new Error(getFirebaseError(error.code));
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
-  return { user, login, register, logout };
+  const getFirebaseError = (code) => {
+    switch(code) {
+      case 'auth/invalid-email':
+        return 'Invalid email address';
+      case 'auth/user-disabled':
+        return 'Account disabled';
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+        return 'Invalid email or password';
+      case 'auth/account-exists-with-different-credential':
+        return 'Account already exists with different credential';
+      case 'auth/popup-closed-by-user':
+        return 'Login popup was closed';
+      case 'auth/cancelled-popup-request':
+        return 'Popup sign in was cancelled';
+      case 'auth/popup-blocked':
+        return 'Popup was blocked by your browser';
+      default:
+        return 'Login failed. Please try again.';
+    }
+  };
+
+  return { 
+    user, 
+    loading,
+    login, 
+    socialLogin, 
+    logout 
+  };
 };
