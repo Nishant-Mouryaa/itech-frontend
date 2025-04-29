@@ -165,52 +165,14 @@ const Navbar = () => {
                   </NavLink>
                 </li>
                 
-                <li className="nav-item dropdown">
+                <li className="nav-item">
                   <NavLink 
-                    className="nav-link dropdown-toggle" 
+                    className="nav-link" 
                     to="/courses"
-                    onClick={(e) => {
-                      if (window.innerWidth < 992) {
-                        e.preventDefault();
-                        const dropdown = e.currentTarget.closest('.nav-item');
-                        dropdown.classList.toggle('show');
-                      } else {
-                        setMobileMenuOpen(false);
-                      }
-                    }}
+                    onClick={() => setMobileMenuOpen(false)}
                   >
-                    Courses <FaChevronDown className="dropdown-arrow" />
+                    Courses
                   </NavLink>
-                  <div className="dropdown-menu">
-                    <Link 
-                      className="dropdown-item" 
-                      to="/courses/programming" 
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Programming
-                    </Link>
-                    <Link 
-                      className="dropdown-item" 
-                      to="/courses/design" 
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Design
-                    </Link>
-                    <Link 
-                      className="dropdown-item" 
-                      to="/courses/business" 
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Business
-                    </Link>
-                    <Link 
-                      className="dropdown-item" 
-                      to="/courses/data-science" 
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Data Science
-                    </Link>
-                  </div>
                 </li>
                 
                 <li className="nav-item">

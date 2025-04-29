@@ -11,6 +11,7 @@ import AdminPanel from './components/AdminPanel';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Dashboard from './components/Dashboard';
+import CartDebug from './components/CartDebug'; // Debug component
 
 
 
@@ -49,6 +50,7 @@ const App = () => {
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/instructors" element={<InstructorListPage />} />
           <Route path="/instructor/:id" element={<InstructorProfilePage />} />
+          <Route path="/cart-debug" element={<CartDebug />} /> {/* Debugging component */}
 
           {/* Dashboard & nested pages */}
           <Route path="/dashboard" element={<Dashboard />}>
